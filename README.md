@@ -25,3 +25,19 @@ In FunctionCertificate folder you will find some useful code samples. Each folde
     The Function itself.
 
 - FunctionCertificateConsoleClient
+
+
+
+## Todo List
+
+- Finish the sample code using some service connection (like storage account);
+- Document ways to add certificate to a function app:
+    - Create a free App Service Managed Certificate (Preview)
+    - Purchase an App Service certificate
+    - Import a certificate from Key Vault
+    - Upload a private certificate
+
+
+## Progress Work
+
+20%
