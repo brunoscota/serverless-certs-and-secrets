@@ -1,0 +1,17 @@
+/Users/bcarvalho/Projects/upwork/azure-expert/serverless-certs-and-secrets/FunctionCertificates/CreateSelfSignedCertificateConsole/bin/Debug/netcoreapp3.1/CreateSelfSignedCertificateConsole
+/Users/bcarvalho/Projects/upwork/azure-expert/serverless-certs-and-secrets/FunctionCertificates/CreateSelfSignedCertificateConsole/bin/Debug/netcoreapp3.1/CreateSelfSignedCertificateConsole.deps.json
+/Users/bcarvalho/Projects/upwork/azure-expert/serverless-certs-and-secrets/FunctionCertificates/CreateSelfSignedCertificateConsole/bin/Debug/netcoreapp3.1/CreateSelfSignedCertificateConsole.runtimeconfig.json
+/Users/bcarvalho/Projects/upwork/azure-expert/serverless-certs-and-secrets/FunctionCertificates/CreateSelfSignedCertificateConsole/bin/Debug/netcoreapp3.1/CreateSelfSignedCertificateConsole.runtimeconfig.dev.json
+/Users/bcarvalho/Projects/upwork/azure-expert/serverless-certs-and-secrets/FunctionCertificates/CreateSelfSignedCertificateConsole/bin/Debug/netcoreapp3.1/CreateSelfSignedCertificateConsole.dll
+/Users/bcarvalho/Projects/upwork/azure-expert/serverless-certs-and-secrets/FunctionCertificates/CreateSelfSignedCertificateConsole/bin/Debug/netcoreapp3.1/CreateSelfSignedCertificateConsole.pdb
+/Users/bcarvalho/Projects/upwork/azure-expert/serverless-certs-and-secrets/FunctionCertificates/CreateSelfSignedCertificateConsole/bin/Debug/netcoreapp3.1/CertificateManager.dll
+/Users/bcarvalho/Projects/upwork/azure-expert/serverless-certs-and-secrets/FunctionCertificates/CreateSelfSignedCertificateConsole/bin/Debug/netcoreapp3.1/Microsoft.Extensions.DependencyInjection.dll
+/Users/bcarvalho/Projects/upwork/azure-expert/serverless-certs-and-secrets/FunctionCertificates/CreateSelfSignedCertificateConsole/bin/Debug/netcoreapp3.1/Microsoft.Extensions.DependencyInjection.Abstractions.dll
+/Users/bcarvalho/Projects/upwork/azure-expert/serverless-certs-and-secrets/FunctionCertificates/CreateSelfSignedCertificateConsole/bin/Debug/netcoreapp3.1/System.Security.Cryptography.Pkcs.dll
+/Users/bcarvalho/Projects/upwork/azure-expert/serverless-certs-and-secrets/FunctionCertificates/CreateSelfSignedCertificateConsole/bin/Debug/netcoreapp3.1/runtimes/win/lib/netcoreapp3.0/System.Security.Cryptography.Pkcs.dll
+/Users/bcarvalho/Projects/upwork/azure-expert/serverless-certs-and-secrets/FunctionCertificates/CreateSelfSignedCertificateConsole/obj/Debug/netcoreapp3.1/CreateSelfSignedCertificateConsole.csprojAssemblyReference.cache
+/Users/bcarvalho/Projects/upwork/azure-expert/serverless-certs-and-secrets/FunctionCertificates/CreateSelfSignedCertificateConsole/obj/Debug/netcoreapp3.1/CreateSelfSignedCertificateConsole.AssemblyInfoInputs.cache
+/Users/bcarvalho/Projects/upwork/azure-expert/serverless-certs-and-secrets/FunctionCertificates/CreateSelfSignedCertificateConsole/obj/Debug/netcoreapp3.1/CreateSelfSignedCertificateConsole.AssemblyInfo.cs
+/Users/bcarvalho/Projects/upwork/azure-expert/serverless-certs-and-secrets/FunctionCertificates/CreateSelfSignedCertificateConsole/obj/Debug/netcoreapp3.1/CreateSelfSignedCertificateConsole.csproj.CopyComplete
+/Users/bcarvalho/Projects/upwork/azure-expert/serverless-certs-and-secrets/FunctionCertificates/CreateSelfSignedCertificateConsole/obj/Debug/netcoreapp3.1/CreateSelfSignedCertificateConsole.dll
+/Users/bcarvalho/Projects/upwork/azure-expert/serverless-certs-and-secrets/FunctionCertificates/CreateSelfSignedCertificateConsole/obj/Debug/netcoreapp3.1/CreateSelfSignedCertificateConsole.pdb

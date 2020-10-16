@@ -22,14 +22,14 @@ namespace CreateSelfSignedCertsConsole
 
             // Client self signed certificate
             var client = createClientServerAuthCerts.NewClientSelfSignedCertificate(
-                new DistinguishedName { 
-                    CommonName = "functionsCertAuth", 
-                    Country = "CH", 
-                    Organisation="damienbod" },
+                new DistinguishedName {
+                    CommonName = "functionsCertAuth",
+                    Country = "BR",
+                    Organisation="it" },
                 new ValidityPeriod { ValidFrom = DateTime.UtcNow, ValidTo = DateTime.UtcNow.AddYears(10) },
                 dnsName);
 
-            client.FriendlyName = "azure client certificate";
+            client.FriendlyName = "functionsCertAuth";
 
             var clientCertInPfxBtyes =
                 importExportCertificate.ExportSelfSignedCertificatePfx(password, client);
