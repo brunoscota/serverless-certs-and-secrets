@@ -384,14 +384,9 @@ When the operation completes, you see the certificate in the **Private Key Certi
 
 # Todo List
 
-- Finish the sample code using some service connection (like storage account);
-- Document ways to add certificate to a function app:
-    - Create a free App Service Managed Certificate (Preview)
-    - Purchase an App Service certificate
-    - Import a certificate from Key Vault
-    - Upload a private certificate
+- Finish the sample code using some service connection (like storage account).
 
 
 # Work Progress
 
-80%
+90%
