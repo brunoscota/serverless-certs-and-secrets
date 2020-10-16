@@ -3,7 +3,13 @@
 # Table of Contents
 
 * [Requirements](#Requirements)
-* [Add a TLS/SSL certificate in Azure Function Code](#Add-a-TLS/SSL-certificate-in-Azure-Function-Code)
+* [Use a TLS/SSL certificate in your code in Azure Function](#Use-a-TLS/SSL-certificate-in-your-code-in-Azure-App-Service)
+    - [Find the thumbprint](#Find-the-thumbprint)
+    - [Make the certificate accessible](#Make-the-certificate-accessible)
+    - [Load certificate in Windows apps](#Load-certificate-in-windows-apps)
+    - [Load certificate from file](#load-certificate-from-file)
+    - [Load certificate in Linux/Windows containers](#Load-certificate-in-Linux/Windows-containers)
+    - [Code Sample 1](#code-sample-1)
 * [Add a TLS/SSL certificate in Azure Function (App Service) as endpoint](#Add-a-TLS/SSL-certificate-in-Azure-App-Service-(Azure-Function)-as-endpoint)
     - [Prerequisites](#Prerequisites)
     - [Using a free certificate (Preview)](#Using-a-free-certificate-(Preview))
@@ -37,70 +43,222 @@
         - Upload a private certificate
 
 
-# Add a TLS/SSL certificate in Azure Function Code
+# Use a TLS/SSL certificate in your code in Azure App Service
+
+In your application code, you can access the private certificates you add to App Service. Your app code may act as a client and access an external service that requires certificate authentication, or it may need to perform cryptographic tasks. This how-to guide shows how to use public or private certificates in your application code.
+
+This approach to using certificates in your code makes use of the TLS functionality in App Service, which requires your app to be in **Basic** tier or above. If your app is in **Free** or **Shared** tier, you can [include the certificate file in your app repository](#load-certificate-from-file).
+
+When you let App Service manage your TLS/SSL certificates, you can maintain the certificates and your application code separately and safeguard your sensitive data.
 
 
-- First of all, in this example, we'll use a self sign certificate. But in a production environment its strongly recommended to use
+## Find the thumbprint
 
-- Let's create a functionApp in Azure. It will be our Certificate Requester
+In the <a href="https://portal.azure.com" target="_blank">Azure portal</a>, from the left menu, select **App Services** > **\<app-name>**.
+
+From the left navigation of your app, select **TLS/SSL settings**, then select **Private Key Certificates (.pfx)** or **Public Key Certificates (.cer)**.
+
+Find the certificate you want to use and copy the thumbprint.
+
+![Copy the certificate thumbprint](./media/configure-ssl-certificate/create-free-cert-finished.png)
+
+
+## Make the certificate accessible
+
+To access a certificate in your app code, add its thumbprint to the `WEBSITE_LOAD_CERTIFICATES` app setting, by running the following command in the <a target="_blank" href="https://shell.azure.com" >Cloud Shell</a>:
+
+```azurecli-interactive
+az webapp config appsettings set --name <app-name> --resource-group <resource-group-name> --settings WEBSITE_LOAD_CERTIFICATES=<comma-separated-certificate-thumbprints>
+```
+
+To make all your certificates accessible, set the value to `*`.
+
+## Load certificate in Windows apps
+
+The `WEBSITE_LOAD_CERTIFICATES` app setting makes the specified certificates accessible to your Windows hosted app in the Windows certificate store, and the location depends on the [pricing tier](overview-hosting-plans.md):
+
+- **Isolated** tier - in [Local Machine\My](/windows-hardware/drivers/install/local-machine-and-current-user-certificate-stores).
+- All other tiers - in [Current User\My](/windows-hardware/drivers/install/local-machine-and-current-user-certificate-stores).
+
+In C# code, you access the certificate by the certificate thumbprint. The following code loads a certificate with the thumbprint `E661583E8FABEF4C0BEF694CBC41C28FB81CD870`.
+
+```csharp
+using System;
+using System.Linq;
+using System.Security.Cryptography.X509Certificates;
+
+string certThumbprint = "E661583E8FABEF4C0BEF694CBC41C28FB81CD870";
+bool validOnly = false;
+
+using (X509Store certStore = new X509Store(StoreName.My, StoreLocation.CurrentUser))
+{
+  certStore.Open(OpenFlags.ReadOnly);
+
+  X509Certificate2Collection certCollection = certStore.Certificates.Find(
+                              X509FindType.FindByThumbprint,
+                              // Replace below with your certificate's thumbprint
+                              certThumbprint,
+                              validOnly);
+  // Get the first cert with the thumbprint
+  X509Certificate2 cert = certCollection.OfType<X509Certificate>().FirstOrDefault();
+
+  if (cert is null)
+      throw new Exception($"Certificate with thumbprint {certThumbprint} was not found");
+
+  // Use certificate
+  Console.WriteLine(cert.FriendlyName);
+
+  // Consider to call Dispose() on the certificate after it's being used, avaliable in .NET 4.6 and later
+}
+```
+
+In Java code, you access the certificate from the "Windows-MY" store using the Subject Common Name field (see [Public key certificate](https://en.wikipedia.org/wiki/Public_key_certificate)). The following code shows how to load a private key certificate:
+
+```java
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMapping;
+import java.security.KeyStore;
+import java.security.cert.Certificate;
+import java.security.PrivateKey;
+
+...
+KeyStore ks = KeyStore.getInstance("Windows-MY");
+ks.load(null, null);
+Certificate cert = ks.getCertificate("<subject-cn>");
+PrivateKey privKey = (PrivateKey) ks.getKey("<subject-cn>", ("<password>").toCharArray());
+
+// Use the certificate and key
+...
+```
+
+For languages that don't support or offer insufficient support for the Windows certificate store, see [Load certificate from file](#load-certificate-from-file).
+
+## Load certificate from file
+
+If you need to load a certificate file that you upload manually, it's better to upload the certificate using FTPS instead of GIT, for example. You should keep sensitive data like a private certificate out of source control.
+
+> [!NOTE]
+> ASP.NET and ASP.NET Core on Windows must access the certificate store even if you load a certificate from a file. To load a certificate file in a Windows .NET app, load the current user profile with the following command in the <a target="_blank" href="https://shell.azure.com" >Cloud Shell</a>:
+>
+> ```azurecli-interactive
+> az webapp config appsettings set --name <app-name> --resource-group <resource-group-name> --settings WEBSITE_LOAD_USER_PROFILE=1
+> ```
+>
+> This approach to using certificates in your code makes use of the TLS functionality in App Service, which requires your app to be in **Basic** tier or above.
+
+The following C# example loads a public certificate from a relative path in your app:
+
+```csharp
+using System;
+using System.IO;
+using System.Security.Cryptography.X509Certificates;
+
+...
+var bytes = File.ReadAllBytes("~/<relative-path-to-cert-file>");
+var cert = new X509Certificate2(bytes);
+
+// Use the loaded certificate
+```
+
+To see how to load a TLS/SSL certificate from a file in Node.js, PHP, Python, Java, or Ruby, see the documentation for the respective language or web platform.
+
+## Load certificate in Linux/Windows containers
+
+The `WEBSITE_LOAD_CERTIFICATES` app settings makes the specified certificates accessible to your Windows or Linux container apps (including built-in Linux containers) as files. The files are found under the following directories:
+
+| Container platform | Public certificates | Private certificates |
+| - | - | - |
+| Windows container | `C:\appservice\certificates\public` | `C:\appservice\certificates\private` |
+| Linux container | `/var/ssl/certs` | `/var/ssl/private` |
+
+The certificate file names are the certificate thumbprints.
+
+> [!NOTE]
+> App Service inject the certificate paths into Windows containers as the following environment variables `WEBSITE_PRIVATE_CERTS_PATH`, `WEBSITE_INTERMEDIATE_CERTS_PATH`, `WEBSITE_PUBLIC_CERTS_PATH`, and `WEBSITE_ROOT_CERTS_PATH`. It's better to reference the certificate path with the environment variables instead of hardcoding the certificate path, in case the certificate paths change in the future.
+>
+
+In addition, Windows Server Core containers load the certificates into the certificate store automatically, in **LocalMachine\My**. To load the certificates, follow the same pattern as [Load certificate in Windows apps](#load-certificate-in-windows-apps). For Windows Nano based containers, use the file paths provided above to [Load the certificate directly from file](#load-certificate-from-file).
+
+The following C# code shows how to load a public certificate in a Linux app.
+
+```csharp
+using System;
+using System.IO;
+using System.Security.Cryptography.X509Certificates;
+
+...
+var bytes = File.ReadAllBytes("/var/ssl/certs/<thumbprint>.der");
+var cert = new X509Certificate2(bytes);
+
+// Use the loaded certificate
+```
+
+To see how to load a TLS/SSL certificate from a file in Node.js, PHP, Python, Java, or Ruby, see the documentation for the respective language or web platform.
+
+
+## Code Sample 1
+
+First of all, in this example, we'll use a self sign certificate. But in a production environment its strongly recommended to use
+
+Let's create a functionApp in Azure. It will be our Certificate Requester
 
 ![alt text](./images/01.png)
 
-1. In this example we're using a Basic B1 for ASP. This is just for demo.
+In this example we're using a Basic B1 for ASP. This is just for demo.
 
 ![alt text](./images/02.png)
 
-2. At this moment you dont see any functions. We need to upload our first one.
+At this moment you dont see any functions. We need to upload our first one.
 
 ![alt text](./images/03.png)
 
 
-3. Before that, we need to have a .pfx certificate to use in our code. In this example we are using a self cert. In the folder `FunctionCertificates/CreateSelfSignedCertificateConsole` there is a self certificate generator, all you have to do is edit the `Program.cs` providing the corrent certificate infos and run the code. But, if you have a certificate already you can use it.
+Before that, we need to have a .pfx certificate to use in our code. In this example we are using a self cert. In the folder `FunctionCertificates/CreateSelfSignedCertificateConsole` there is a self certificate generator, all you have to do is edit the `Program.cs` providing the corrent certificate infos and run the code. But, if you have a certificate already you can use it.
 
 ![alt text](./images/04.png)
 
-4. Before upload the code, we'll need to copy the required certificate thumbprint and paste in our function code. Edit `/FunctionCertificates/FunctionCertificate/RandomStringFunction.cs` and paste the certificate thumbprint into the code.
+Before upload the code, we'll need to copy the required certificate thumbprint and paste in our function code. Edit `/FunctionCertificates/FunctionCertificate/RandomStringFunction.cs` and paste the certificate thumbprint into the code.
 
 ![alt text](./images/05.png)
 
-4. In this example we're using VSCode with Azure Function extension to upload the functions. Upload the function to your functionapp in azure clicking with right button in the explorer area and selecting the appropriate functionapp.
+In this example we're using VSCode with Azure Function extension to upload the functions. Upload the function to your functionapp in azure clicking with right button in the explorer area and selecting the appropriate functionapp.
 
 ![alt text](./images/06.png)
 
-5. Now we can see our function in the functionapp.
+Now we can see our function in the functionapp.
 
 ![alt text](./images/07.png)
 
 
-6. In your functionApp, you will need to restrict the access only with certificate. Go to Setting -> Configuration -> Incoming client certificates and select to "require"
+In your functionApp, you will need to restrict the access only with certificate. Go to Setting -> Configuration -> Incoming client certificates and select to "require"
 
 
 ![alt text](./images/08.png)
 
 
-7. Now we're ready to use certificate. Let's create another FunctionApp with another Azure Service plan. Repeat the steps 1 and 2. In this example we named the functionapp as `fappCertificateClient`. At the end well have a resource group same as image below.
+Now we're ready to use certificate. Let's create another FunctionApp with another Azure Service plan. Repeat the steps 1 and 2. In this example we named the functionapp as `fappCertificateClient`. At the end well have a resource group same as image below.
 
 ![alt text](./images/09.png)
 
 
-8. Copy the certificate .pfx and put in `/FunctionCertificates/FunctionCertificateConsoleClient/` folder. Now you need to edit the `Program.cs` file and change the location of the certificate and the password, and the url for the functionapp certificate. Also, edit the `FunctionCertificateConsoleClient.csproj` to make sure that the certificate will be upload to your functionApp.
+Copy the certificate .pfx and put in `/FunctionCertificates/FunctionCertificateConsoleClient/` folder. Now you need to edit the `Program.cs` file and change the location of the certificate and the password, and the url for the functionapp certificate. Also, edit the `FunctionCertificateConsoleClient.csproj` to make sure that the certificate will be upload to your functionApp.
 
-- Program.cs
+Program.cs
 
 ![alt text](./images/10.png)
 
 ![alt text](./images/12.png)
 
-- FunctionCertificateConsoleClient.csproj
+FunctionCertificateConsoleClient.csproj
 
 ![alt text](./images/11.png)
 
 
 
-9. Upload this function to the new functionAppClient.
+Upload this function to the new functionAppClient.
 
 
-10. Access your functionClient using browser. E.g: https://fappcertificateclient.azurewebsites.net/api/RandomStringCertAuthClient. If everything is alright you'll see a encoded string as response body. this response is returned from your first functionApp.
+Access your functionClient using browser. E.g: https://fappcertificateclient.azurewebsites.net/api/RandomStringCertAuthClient. If everything is alright you'll see a encoded string as response body. this response is returned from your first functionApp.
 
 ![alt text](./images/13.png)
 
