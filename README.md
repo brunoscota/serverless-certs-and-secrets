@@ -187,7 +187,7 @@ If you purchase an App Service Certificate from Azure, Azure manages the followi
 - Takes care of the purchase process from GoDaddy.
 - Performs domain verification of the certificate.
 - Maintains the certificate in Azure Key Vault.
-- Manages certificate renewal (see [Renew certificate](#renew-certificate)).
+- Manages certificate renewal.
 - Synchronize the certificate automatically with the imported copies in App Service apps.
 
 To purchase an App Service certificate, go to [Start certificate order](#start-certificate-order).
@@ -381,6 +381,15 @@ When the operation completes, you see the certificate in the **Private Key Certi
 >
 
 
+
+## Considerations
+
+All the options shown above are good. However, to every scenario exists a diferent method. Here is a list of considerations for each scenario.
+
+- Using a free certificate. Is a new feature and it can be a cheaper alternative. But, there is a lots of limitations like not accept wildcards.
+- Import an App Service Certificate. This is a very good method if you don't want to manage the certificate lifecycle because Azure does it for you. But you'll need to buy and store the certificate in Azure. All the managing process occurs in Azure.
+- Import a certificate from Key Vault. This is method for users who prefers to centralize all the certificates in a key vault. All the certificates management happens via key vault and you can separte the responsability, for example, a team is responsible for managing all the certificates and another team is just a consumer. This is a safe way to share your certificates between multiple teams.
+- Upload private certificates. This method is the most straightforward but me less secure. You just simple use the azure portal to upload our private certificate. You have here a security risk because you can upload your private certificate directly from your computer.
 
 # Todo List
 
