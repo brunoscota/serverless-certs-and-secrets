@@ -60,7 +60,7 @@ From the left navigation of your app, select **TLS/SSL settings**, then select *
 
 Find the certificate you want to use and copy the thumbprint.
 
-![Copy the certificate thumbprint](./media/configure-ssl-certificate/create-free-cert-finished.png)
+![Copy the certificate thumbprint](./images/create-free-cert-finished.png)
 
 
 ## Make the certificate accessible
