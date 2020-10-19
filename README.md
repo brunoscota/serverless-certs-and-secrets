@@ -549,11 +549,8 @@ All the options shown above are good. However, to every scenario exists a difere
 - Import a certificate from Key Vault. This is method for users who prefers to centralize all the certificates in a key vault. All the certificates management happens via key vault and you can separte the responsability, for example, a team is responsible for managing all the certificates and another team is just a consumer. This is a safe way to share your certificates between multiple teams.
 - Upload private certificates. This method is the most straightforward but me less secure. You just simple use the azure portal to upload our private certificate. You have here a security risk because you can upload your private certificate directly from your computer.
 
-# Todo List
-
-- Finish the sample code using some service connection (like storage account).
-
-
 # Work Progress
 
-90%
+100%
+
+# Todo List
